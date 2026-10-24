@@ -5,143 +5,146 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Flip Clock</title>
   <style>
-    /* 【追加】 全体の基本スタイル設定 */
-    /* 理由：背景を黒にし、画面中央に時計を配置するため */
+    /* =========================================
+       全体の基本スタイル設定
+       ========================================= */
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
       padding: 0;
       display: flex;
       justify-content: center;
       align-items: center;
+      width: 100vw;
+      height: 100vh;
       min-height: 100vh;
       background-color: #000000;
       color: #ffffff;
       font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-      overflow: hidden; /* 【追加】 理由：スケール変更時の余期せぬスクロールバー出現を防ぐため */
+      overflow: hidden; /* スクリーン全体ではみ出しスクロールを防止 */
     }
 
-    /* 【追加】 アプリ全体のコンテナ */
-    /* 理由：時計部分とフッター部分を縦に並べるため */
+    /* アプリ全体のコンテナ：画面の幅・高さの限界まで自動拡大 */
     .app-container {
       display: flex;
-      flex-direction: column;
+      justify-content: center;
       align-items: center;
-      width: 100%;
-      max-width: 800px;
-      padding: 20px;
+      padding: 1.5vw 2.5vw;
+      background-color: #1a1a1a;
+      border-radius: 2.5vmin;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.9);
+      
+      /* 画面の縦幅・横幅に合わせて上限いっぱいに自動伸縮 */
+      width: min(96vw, 150vh);
+      max-height: 92vh;
+      aspect-ratio: 16 / 6; /* 時計全体の比率を固定して破綻を防ぐ */
     }
 
-    /* 【更新】 時計部分のレイアウト */
-    /* 更新前：時間、分、秒の各ブロックとコロンを横に並べるため */
-    /* 理由：時間、分、秒の各ブロックとコロンを横に並べつつ、JSによるスケール変更の基準点を中央にするため */
+    /* 時計部分のレイアウト */
     .flip-clock {
       display: flex;
       align-items: center;
-      gap: 10px;
-      transform-origin: center center;
+      justify-content: space-between;
+      width: 100%;
+      height: 100%;
+      gap: 1.5%;
     }
 
-    /* 【追加】 コロン（:）のスタイル */
-    /* 理由：画像にあるように、四角いドットを縦に2つ並べるため */
+    /* コロン（:）のスタイル */
     .colon {
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      gap: 30px;
-      height: 180px;
-      margin: 0 10px;
+      gap: 25%;
+      height: 100%;
+      width: 3%;
     }
 
     .colon .dot {
-      width: 14px;
-      height: 14px;
+      width: 50%;
+      aspect-ratio: 1 / 1;
       background-color: #ffffff;
-      border-radius: 2px;
+      border-radius: 15%;
     }
 
     /* =========================================
        フリップアニメーション関連のスタイル
        ========================================= */
 
-    /* 【追加】 1つの数字ブロック（HH, MM, SS）のコンテナ */
-    /* 理由：3D空間（perspective）を設定し、立体的な回転を可能にするため */
+    /* 1つの数字ブロック（HH, MM, SS）のコンテナ */
     .flip-unit {
       position: relative;
-      width: 150px;
-      height: 180px;
-      font-size: 130px;
+      width: 28%;
+      height: 100%;
       font-weight: bold;
-      border-radius: 12px;
+      border-radius: 8%;
       perspective: 1000px; /* 3D効果の深さ */
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.8);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.8);
+      container-type: inline-size; /* 親要素の幅に基づくコンテナクエリ有効化 */
     }
 
-    /* 【更新】 カード共通スタイル */
-    /* 更新前：カードの半分（上・下）だけを表示し、はみ出た部分を隠すため */
-    /* 理由：上下のカードの間に隙間を作るため、高さを 50% から 2px 削って調整 */
+    /* カード共通スタイル */
     .flip-unit > div {
       position: absolute;
       left: 0;
       width: 100%;
-      height: calc(50% - 2px);
+      height: calc(50% - 1px);
       overflow: hidden;
       background-color: #333333; /* カードのダークグレー色 */
       color: #ffffff;
+      display: flex;
+      justify-content: center;
     }
 
-    /* 【追加】 テキストを上下中央に配置する擬似要素 */
-    /* 理由：data-val属性から値を取得し、カードの中央に文字を配置するため */
+    /* テキストの描画領域 */
     .flip-unit > div::before {
       content: attr(data-val);
       position: absolute;
       left: 0;
       width: 100%;
-      height: 180px; /* .flip-unitの高さと合わせる */
-      line-height: 180px;
-      text-align: center;
+      height: 200%; /* 全体の高さに合わせる */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 82cqi; /* コンテナ幅に完全に比例した文字サイズ */
+      line-height: 1;
     }
 
-    /* 【更新】 上半分のカードのスタイル */
-    /* 更新前：上半分に配置し、下部を基点に回転させるため */
-    /* 理由：カード間に物理的な隙間を設けたため、不要になった中央の折り目線（border-bottom）を削除 */
+    /* 上半分のカードのスタイル */
     .top, .top-flip {
       top: 0;
-      border-top-left-radius: 12px;
-      border-top-right-radius: 12px;
-      transform-origin: bottom; /* 回転の軸を下端に設定 */
+      border-top-left-radius: 8cqi;
+      border-top-right-radius: 8cqi;
+      transform-origin: bottom;
     }
 
     .top::before, .top-flip::before {
       top: 0;
     }
 
-    /* 【更新】 下半分のカードのスタイル */
-    /* 更新前：下半分に配置し、上部を基点に回転させるため */
-    /* 理由：カード間に物理的な隙間を設けたため、不要になった中央の折り目線（border-top）を削除 */
+    /* 下半分のカードのスタイル */
     .bottom, .bottom-flip {
       bottom: 0;
-      border-bottom-left-radius: 12px;
-      border-bottom-right-radius: 12px;
-      transform-origin: top; /* 回転の軸を上端に設定 */
+      border-bottom-left-radius: 8cqi;
+      border-bottom-right-radius: 8cqi;
+      transform-origin: top;
     }
 
     .bottom::before, .bottom-flip::before {
-      bottom: 0; /* 下から基準にしてテキスト位置を合わせる */
+      bottom: 0;
     }
 
-    /* 【追加】 各カードの重なり順（z-index）と初期状態の設定 */
-    /* 理由：アニメーション時に正しいカードが前面に見えるようにするため */
+    /* 重なり順（z-index）と初期状態の設定 */
     .top { z-index: 2; }
     .bottom { z-index: 1; }
-    /* top-flip は初期状態では0度で前面にある */
     .top-flip { z-index: 3; transform: rotateX(0deg); }
-    /* bottom-flip は初期状態では90度倒れていて見えない */
     .bottom-flip { z-index: 2; transform: rotateX(90deg); }
 
-    /* 【更新】 アニメーション実行時のクラス適用 */
-    /* 更新前：.flip-unit.flipping .bottom-flip { animation: flipBottom 0.35s ease-out 0.35s forwards; } */
-    /* 理由：上が倒れきる動きと下が起き上がる動きの境界をより明確にし、数字の食い違いを視認させないため、アニメーション時間を 0.3s に戻し、ディレイを正確に 0.3s に設定 */
+    /* アニメーション実行時のクラス適用 */
     .flip-unit.flipping .top-flip {
       animation: flipTop 0.3s ease-in forwards;
     }
@@ -149,27 +152,27 @@
       animation: flipBottom 0.3s ease-out 0.3s forwards;
     }
 
-    /* 【追加】 上半分のカードが手前に倒れるアニメーション */
-    /* 理由：パタパタとカードが落ちる動きを表現するため */
+    /* 上半分のカードが手前に倒れるアニメーション */
     @keyframes flipTop {
       0% { transform: rotateX(0deg); }
       100% { transform: rotateX(-90deg); }
     }
 
-    /* 【追加】 下半分のカードが手前に起き上がるアニメーション */
-    /* 理由：次の数字が現れる動きを表現するため */
+    /* 下半分のカードが手前に起き上がるアニメーション */
     @keyframes flipBottom {
       0% { transform: rotateX(90deg); }
       100% { transform: rotateX(0deg); }
     }
-
   </style>
+
+    <!-- PWA設定 -->
+    <link rel="manifest" href="./manifest.json">
+    <link rel="apple-touch-icon" href="./apple-touch-icon.png">
+    <link rel="icon" type="image/svg+xml" href="./icon.svg">
 </head>
 <body>
 
   <div class="app-container">
-    <!-- 【追加】 時計表示エリア -->
-    <!-- 理由：時間、分、秒をそれぞれフリップユニットとして配置するため -->
     <div class="flip-clock">
       <div class="flip-unit" id="hours">
         <div class="top" data-val="00"></div>
@@ -206,9 +209,7 @@
 
   <script>
     /**
-     * 【更新】 フリップアニメーションを実行し、値を更新する関数
-     * 更新前：アニメーション時間（0.35s + 0.35s = 0.7s）に合わせて、安全策として 0.8s 後にリセットを行う
-     * 理由：スクリーンショットにある「めくっている最中の数字の食い違い」を解消するため、アニメーション開始直後の背面更新を廃止し、上が倒れきった瞬間に背面を更新するようトリガータイミングを精緻化
+     * フリップアニメーションを実行し、値を更新する関数
      * @param {string} id - 対象のDOM要素のID (hours, minutes, seconds)
      * @param {string} newValue - 新しく表示する2桁の数値文字列
      */
@@ -219,37 +220,25 @@
       const topFlip = unit.querySelector('.top-flip');
       const bottomFlip = unit.querySelector('.bottom-flip');
 
-      // 【更新】 現在表示されている値を取得
-      // 更新前：const currentValue = bottomFlip.getAttribute('data-val');
-      // 理由：アニメーション中の値の不整合を防ぐため、一番確実に「現在表示されている静止状態の値」を保持している topFlip から取得するように変更
       const currentValue = topFlip.getAttribute('data-val');
       
-      // 値に変更がない場合は何もしない
       if (currentValue === newValue) return;
 
-      // 【更新】 初期状態のセット
-      // 理由：背面(top, bottom)には現在の値を残し、めくれるカード(topFlip)に現在値、現れるカード(bottomFlip)に新値をセットしてアニメーションを開始する
       top.setAttribute('data-val', currentValue);
       bottom.setAttribute('data-val', currentValue);
       topFlip.setAttribute('data-val', currentValue);
       bottomFlip.setAttribute('data-val', newValue);
 
-      // アニメーションを再トリガーするためのリセット処理
       unit.classList.remove('flipping');
-      void unit.offsetWidth; // リフローを強制してアニメーション状態をリセット
+      void unit.offsetWidth; // リフローを強制
       
-      // アニメーション開始
       unit.classList.add('flipping');
 
-      // 【更新】 アニメーション進行中の背面更新
-      // 理由：上半分のカードが垂直（90度）まで倒れた瞬間（0.3s後）に背面の数字を新しいものに差し替える。これにより、下が起き上がる時には背面がすでに新しくなっている状態を作る。
       setTimeout(() => {
         top.setAttribute('data-val', newValue);
         bottom.setAttribute('data-val', newValue);
       }, 300);
 
-      // 【更新】 全体アニメーション完了後の最終同期
-      // 理由：全てのアニメーション（0.3s + 0.3s = 0.6s）が終了した後に、手前の全カードを新値に同期し、クラスを除去する
       setTimeout(() => {
         topFlip.setAttribute('data-val', newValue);
         unit.classList.remove('flipping');
@@ -257,71 +246,47 @@
     }
 
     /**
-     * 【追加】 画面サイズに合わせて時計の表示スケールを計算・適用する関数
-     * 理由：Android端末など、縦横様々な画面サイズでもはみ出さずに中央に最大化表示できるようにするため
-     */
-    function resizeClock() {
-      const clock = document.querySelector('.flip-clock');
-      // 時計全体の基本となる幅と高さ（要素のサイズ合計に基づいた基準値）
-      const baseWidth = 580;
-      const baseHeight = 200;
-      
-      // 画面の幅と高さ（画面の端に少し余白を持たせるために90%を使用）
-      const windowWidth = window.innerWidth * 0.9;
-      const windowHeight = window.innerHeight * 0.9;
-
-      // 縦横のスケール比率を計算し、小さい方を採用することで画面内に確実に収める
-      const scaleX = windowWidth / baseWidth;
-      const scaleY = windowHeight / baseHeight;
-      const scale = Math.min(scaleX, scaleY);
-
-      // 計算したスケールをCSSのtransformプロパティとして適用
-      clock.style.transform = `scale(${scale})`;
-    }
-
-    /**
-     * 【追加】 時計の更新処理を毎秒実行するメインループ
-     * 理由：常に現在の時刻を監視し、表示を更新し続けるため
+     * 時計の更新処理を毎秒実行するメインループ
      */
     function startClock() {
-      // 初期表示用の即時実行
       updateClock();
-
-      // 1秒ごとに更新処理をループ実行
       setInterval(updateClock, 1000);
     }
 
     /**
-     * 【更新】 現在時刻を取得して各ユニットを更新する関数
-     * 更新前：取得した時刻を2桁の文字列に変換し、フリップ更新関数に渡すため
-     * 理由：フッターの日付更新処理を削除し、時計部分の更新のみに特化させるため
+     * 現在時刻を取得して各ユニットを更新する関数
      */
     function updateClock() {
       const now = new Date();
       
-      // 時・分・秒を取得し、2桁ゼロ埋めを行う（例: 9 -> "09"）
       const h = String(now.getHours()).padStart(2, '0');
       const m = String(now.getMinutes()).padStart(2, '0');
       const s = String(now.getSeconds()).padStart(2, '0');
 
-      // 各ブロックの更新関数を呼び出す
       updateFlipUnit('hours', h);
       updateFlipUnit('minutes', m);
       updateFlipUnit('seconds', s);
     }
 
-    // 【追加】 リサイズ時と端末の向き変更時にスケール再計算を実行するイベントリスナー
-    // 理由：Android端末等での回転時やウィンドウサイズ変更時にも適切なサイズを保つため
-    window.addEventListener('resize', resizeClock);
-    window.addEventListener('orientationchange', resizeClock);
-
-    // 【追加】 初期ロード時に画面スケールの計算を実行
-    // 理由：ページ表示直後から適切なサイズで表示させるため
-    resizeClock();
-
-    // 【追加】 スクリプト読み込み時に時計を開始する
-    // 理由：ページロード後すぐに時計を動作させるため
     startClock();
   </script>
+
+<!-- PWA_GENERATOR_SW_REGISTRATION -->
+<script>
+(function () {
+    function registerPwaServiceWorker() {
+        if (!("serviceWorker" in navigator)) return;
+        navigator.serviceWorker.register("./sw.js")
+            .then(function (registration) {
+                console.log("Service Worker registered successfully:", registration.scope);
+            })
+            .catch(function (error) {
+                console.error("Service Worker registration failed:", error);
+            });
+    }
+    // window.onload を上書きせず、既存アプリの初期化処理と共存させる
+    window.addEventListener("load", registerPwaServiceWorker);
+})();
+<\/script>
 </body>
 </html>
