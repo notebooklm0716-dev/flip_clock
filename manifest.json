@@ -2,7 +2,7 @@
   "id": "./",
   "name": "パタパタ時計",
   "short_name": "パタクロ",
-  "description": "昔懐かしいパタパタ時計(FlipClock)",
+  "description": "パタパタ時計(flipclock)",
   "lang": "ja",
   "start_url": "./index.html",
   "scope": "./",
