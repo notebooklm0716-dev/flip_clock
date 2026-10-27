@@ -1,4 +1,4 @@
-const CACHE_NAME = "flip_clock-pwa-v1";
+const CACHE_NAME = "flip_clock-pwa-v2";
 const CORE_ASSETS = ["./", "./index.html", "./manifest.json"];
 const OPTIONAL_ASSETS = ["./icon.svg", "./icon-192x192.png", "./icon-512x512.png", "./apple-touch-icon.png", "./maskable-512x512.png"];
 
