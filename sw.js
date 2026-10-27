@@ -1,14 +1,19 @@
 const CACHE_NAME = "flip_clock-pwa-v2";
-const CORE_ASSETS = ["./", "./index.html", "./manifest.json"];
-const OPTIONAL_ASSETS = ["./icon.svg", "./icon-192x192.png", "./icon-512x512.png", "./apple-touch-icon.png", "./maskable-512x512.png"];
+const APP_SHELL = [
+  "./",
+  "./index.html",
+  "./manifest.json",
+  "./icon.svg",
+  "./icon-192x192.png",
+  "./icon-512x512.png",
+  "./apple-touch-icon.png",
+  "./maskable-512x512.png"
+];
 
 self.addEventListener("install", event => {
   event.waitUntil((async () => {
     const cache = await caches.open(CACHE_NAME);
-    await cache.addAll(CORE_ASSETS);
-    for (const asset of OPTIONAL_ASSETS) {
-      try { await cache.add(asset); } catch (error) { console.warn("Optional PWA asset not cached:", asset); }
-    }
+    await cache.addAll(APP_SHELL);
     await self.skipWaiting();
   })());
 });
