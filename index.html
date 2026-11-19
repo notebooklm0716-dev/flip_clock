@@ -296,5 +296,24 @@
     window.addEventListener("load", registerPwaServiceWorker);
 })();
 </script>
+
+<!-- PWA動作チェック: インストール/オフラインが効かない理由をその場で表示する -->
+<script>
+(function () {
+  function showNotice(msg) {
+    var bar = document.createElement('div');
+    bar.textContent = msg;
+    bar.style.cssText = 'position:fixed;left:8px;right:8px;bottom:8px;z-index:9999;background:#7f1d1d;color:#fff;font-size:13px;line-height:1.5;padding:10px 12px;border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.5)';
+    document.body.appendChild(bar);
+  }
+  if (location.protocol === 'file:') {
+    showNotice('いまはファイルとして開いているため、PWA機能（インストール・オフライン起動）は動きません。ファイルをWebサーバーに置いて、https:// のURLで開いてください。');
+  } else if (!('serviceWorker' in navigator)) {
+    showNotice('このブラウザではService Workerが使えないため、PWAとしてインストールできません。Chrome / Edge / Safari の最新版で開いてください。');
+  } else if (location.protocol !== 'https:' && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
+    showNotice('PWA機能には https:// のURLが必要です（いまは http:// で開いています）。https で開くとインストール・オフライン起動が使えます。');
+  }
+})();
+</script>
 </body>
 </html>
