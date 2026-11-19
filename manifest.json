@@ -1,5 +1,5 @@
 {
-  "id": "./",
+  "id": "./flip_clock",
   "name": "フリップ時計",
   "short_name": "パタクロ",
   "description": "デジタルフリップ時計",
@@ -29,12 +29,6 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
-    },
-    {
-      "src": "./icon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
-      "purpose": "any"
     }
   ],
   "screenshots": [
