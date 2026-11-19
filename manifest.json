@@ -1,15 +1,15 @@
 {
   "id": "./",
-  "name": "パタパタ時計",
+  "name": "フリップ時計",
   "short_name": "パタクロ",
-  "description": "パタパタ時計(flipclock)",
+  "description": "デジタルフリップ時計",
   "lang": "ja",
-  "start_url": "./",
+  "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
   "orientation": "any",
-  "background_color": "#000000",
-  "theme_color": "#000000",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
   "prefer_related_applications": false,
   "icons": [
     {
